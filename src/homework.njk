@@ -1,0 +1,65 @@
+---
+pagination:
+  data: homeworks
+  size: 1
+  alias: hw
+permalink: "homework_{{ hw.numberStr }}.html"
+layout: base.njk
+tags: homework
+eleventyComputed:
+  title: "Homework {{ hw.numberStr }} (5 pts.)"
+icon: fa-book
+navigation:
+  - name: "Home"
+    link: "index.html"
+    icon: "fa-gavel"
+---
+
+{% set assignment_name = hw.assignmentName %}
+{% set assignment_display = hw.assignmentDisplay %}
+{% set document_link = hw.link %}
+
+<h2>Task 1: Notebook</h2>
+
+<p>Open the assignment in Google Colab, save a copy to your Drive, and complete the questions and code cells in the notebook.</p>
+
+{% if document_link %}
+<div class="alert alert-success">
+<a href="{{ document_link }}">{% if hw.opensCopy %}OPEN A COPY IN GOOGLE COLAB{% else %}OPEN NOTEBOOK{% endif %}</a>
+</div>
+{% endif %}
+
+{% if not document_link %}
+<div class="alert alert-warning">
+<p>Notebook link not yet available. Please check back later.</p>
+</div>
+{% endif %}
+
+{% if hw.previewBase %}
+<p>For your convenience the notebook is displayed below as HTML, but you will likely
+find it easier to copy the notebook from the Google Colab link above.</p>
+
+<div class="embed-responsive embed-responsive-4by3">
+<iframe
+    class="embed-responsive-item course-embed theme-notebook-frame"
+    width="100%"
+    height="800"
+    src="{{ hw.previewBase }}-light.html"
+    data-src-light="{{ hw.previewBase }}-light.html"
+    data-src-dark="{{ hw.previewBase }}-dark.html"></iframe>
+</div>
+{% else %}
+<div class="alert alert-warning">
+<p>Rendered notebook preview not yet available. Use the Google Colab link above.</p>
+</div>
+{% endif %}
+
+<pre style="display: none;" id="dr-container" class="codehilite"><code id="dredd-response"></code></pre>
+
+<h2>Task 2: Assignment Submission Instructions</h2>
+
+<p>Follow the notebook's final export instructions, then upload the generated HTML file to Canvas.</p>
+
+{% if hw.canvasLink %}
+<p><a class="btn btn-success" href="{{ hw.canvasLink }}">SUBMIT ON CANVAS</a></p>
+{% endif %}

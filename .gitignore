@@ -1,0 +1,18 @@
+# Build output
+docs/
+
+# Dependencies
+node_modules/
+
+# Editor/OS files
+*.swp
+.DS_Store
+.vscode/settings.json
+
+# Old Python artifacts (keeping for safety)
+*.pyc
+
+# Course-specific
+*_solutions.ipynb
+*/solutions/*.png
+students.csv

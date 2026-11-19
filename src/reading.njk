@@ -1,0 +1,120 @@
+---
+pagination:
+  data: readings
+  size: 1
+  alias: reading
+permalink: "reading_{{ reading.numberStr }}.html"
+layout: base.njk
+tags: reading
+eleventyComputed:
+  title: "{{ reading.title }}"
+icon: fa-book
+navigation:
+  - name: "Home"
+    link: "index.html"
+    icon: "fa-gavel"
+---
+
+{% set reading_number = reading.numberStr %}
+{% set reading_display = reading.readingDisplay %}
+{% set quiz_link = reading.link %}
+
+{% if reading_number == "01" %}
+    {# Reading 01-only welcome copy for the current course sequence. #}
+    <p><strong>Welcome</strong> to <a href="index.html">CSE 20214 Introduction to Artificial Intelligence for Engineers</a>, which (as the syllabus
+    states) is an introduction to machine learning and artificial intelligence for engineers. We
+    will begin the semester with data and foundational machine-learning methods, then build toward
+    deep learning, reinforcement learning, and modern generative models.</p>
+
+    <div class="alert alert-info">
+
+    <h4><i class="fa fa-bookmark"></i> TL;DR</h4>
+
+    <p>For this week, decide how you will run the notebook software used in this
+    course, complete the assigned readings, and then submit your first reading
+    quiz.</p>
+
+    </div>
+
+    <h2>Course Overview</h2>
+
+    <p>Artificial Intelligence is an extremely broad field and while no doubt all of
+    you will be familiar with some aspects of it, likely the GPT family, these
+    tools are only a small subset of what the field encompasses as a whole.</p>
+
+    <div class="thumbnail">
+        <img src="static/svg/AI_Layers.svg">
+    </div>
+
+    <p>We will begin the course at the top of the circle and work our way down.
+    However at the end of the semester and the bottom of the circles we will
+    find that we start to wrap back around again to the top.</p>
+
+    <h2>Task 1: Notebooks</h2>
+
+    <ul>
+    <li><a href="https://colab.research.google.com/notebooks/basic_features_overview.ipynb">Google Colab</a></li>
+    <li><a href="https://realpython.com/jupyter-notebook-introduction/">Jupyter Notebooks</a></li>
+    <li><a href="https://code.visualstudio.com/docs/datascience/jupyter-notebooks">VSCode Notebooks</a></li>
+    <li><a href="https://www.kaggle.com/code/alexisbcook/creating-your-own-notebooks">Kaggle Notebooks</a></li>
+    </ul>
+
+    <p>Please at least skim all four, but for the purposes of this course you just
+    need to get one of the methods working to run your notebooks. Notebooks
+    can be run locally through something like VSCode, and this is what I
+    recommend and use. If you have other methods, please feel free to reach out to
+    your me to discuss them.</p>
+
+    <h2>Task 2: Reading</h2>
+
+    <pre style="display: none;" id="dr-container" class="codehilite"><code id="dredd-response"></code></pre>
+
+    <h3>Syllabus: <a href="index.html">CSE 20214 Introduction to Artificial Intelligence for Engineers</a></h3>
+
+    <p>Most weeks you will have a reading assignment followed by a brief quiz that will cover the two upcoming lectures. Each of the two will have a primary reading and then a link to a number of additional resources that I encourage you to explore if you're interested. Once completing the readings, use the link below to access the canvas quiz. Quizzes are due at 11:30 AM on the day of the first lecture for the topic.</p>
+
+    <div class="alert alert-info">
+    <strong>Note</strong>: We will be a little lenient on this first reading quiz.
+    </div>
+
+    <div class="alert alert-info">
+    <strong>Note</strong>: Most of the readings are significantly more in depth than what you will need to answer the quizzes. It's completely fine if you skim portions (especially the ones full of equations (yuck)), these are merely meant to prepare you for the lectures so you at least have some familiarity with the material (and they allow me to shift some of the exam points to the quizzes, which are hopefully less stressful).
+    </div>
+
+{% endif %}
+
+{# Topic sections with resources #}
+{% if reading.topics | length %}
+<h2>Topics</h2>
+{% for topic in reading.topics %}
+    {% set topic_id = topic | lectureIdFor %}
+    {% set topic_resources = resources[topic_id] if resources[topic_id] else [] %}
+
+    <h3>{{ topic }}</h3>
+
+    {% if topic_resources | length %}
+        {% set resourcesList = topic_resources %}
+        {% include "resource_sections.njk" %}
+    {% else %}
+        <p><em>No resources available for this topic yet.</em></p>
+    {% endif %}
+{% endfor %}
+{% endif %}
+
+{% if reading_number == "01" %}
+<h2>Task 3: Quiz</h2>
+{% else %}
+<h2>Reading Quiz {{ reading_number }}</h2>
+{% endif %}
+
+<p>Please respond to the quiz below{% if reading_number != "01" %}, you will need to be signed into your ND email in order to respond{% endif %}. You may edit your responses after each submission, so there's really no reason you shouldn't get full credit on these!</p>
+
+{% if quiz_link %}
+<div class="alert alert-success">
+<a href="{{ quiz_link }}">Access the quiz here</a>
+</div>
+{% else %}
+<div class="alert alert-warning">
+<p>Quiz link not yet available. Please check back later.</p>
+</div>
+{% endif %}

@@ -1,0 +1,93 @@
+---
+pagination:
+  data: assessments
+  size: 1
+  alias: assessment
+permalink: "{{ assessment.slug }}.html"
+layout: base.njk
+eleventyComputed:
+  title: "{{ assessment.title }}"
+icon: fa-file-text-o
+navigation:
+  - name: "Home"
+    link: "index.html#schedule"
+    icon: "fa-calendar"
+---
+{% if assessment.isWorkbook %}
+<p class="lead">Fill in the lecture slides and work through the review questions for Exam {{ assessment.number }} in the workbook below.</p>
+<p><strong>Scheduled date:</strong> {{ assessment.date }}.</p>
+
+<h2>Workbook</h2>
+{% if assessment.link %}
+<div class="alert alert-success">
+  {% if assessment.copyLink %}<a href="{{ assessment.copyLink }}">Make a copy of {{ assessment.title }}</a>{% else %}<a href="{{ assessment.link }}">Open {{ assessment.title }}</a>{% endif %}
+  {% if assessment.pdfLink %} &middot; <a href="{{ assessment.pdfLink }}">Download a PDF to print</a>{% endif %}
+</div>
+<p>The workbook is letter-sized: print it, or annotate the PDF on a tablet. Each chapter has the lecture slides with blanks to fill in, the practice packet questions next to the topics they test, and a matching exercise at the end.</p>
+{% else %}
+<p class="text-muted">The workbook has not been posted yet.</p>
+{% endif %}
+
+{% if assessment.number == '01' %}
+<p><a href="https://drive.google.com/file/d/1XsYSeFwkTfdY_QwsLwp1xJI67nDnRWl0/view?usp=drivesdk">Unit 01 Acronym Sheet (PDF)</a></p>
+{% endif %}
+
+{% if assessment.previewLink %}
+<h2>Preview</h2>
+<p>Browse the workbook below, or <a href="{{ assessment.link }}" target="_blank" rel="noopener">open the original in a new tab</a>.</p>
+<div class="embed-responsive" style="padding-bottom: 129.4%;">
+  <iframe class="embed-responsive-item course-embed" width="100%" height="1100" src="{{ assessment.previewLink }}" title="{{ assessment.title }} preview" loading="lazy" allowfullscreen></iframe>
+</div>
+{% endif %}
+
+<p><a href="practice_packet_{{ assessment.number }}.html">Practice Packet {{ assessment.number }}</a> &middot; <a href="exam_{{ assessment.number }}.html">Exam {{ assessment.number }}</a> &middot; <a href="index.html#schedule">Back to the course schedule</a></p>
+{% else %}
+<p class="lead">{% if assessment.isPractice %}Prepare for Exam {{ assessment.number }} with the practice packet below.{% else %}Exam materials and solutions will be available here after the exam.{% endif %}</p>
+<p><strong>Scheduled date:</strong> {{ assessment.date }}. See Canvas for submission deadlines.</p>
+
+<h2>{% if assessment.isPractice %}Practice packet{% else %}Exam{% endif %}</h2>
+{% if assessment.link %}
+<div class="alert alert-success">
+  {% if assessment.copyLink %}
+  <a href="{{ assessment.copyLink }}">Make a copy of {{ assessment.title }}</a>
+  {% else %}
+  <a href="{{ assessment.link }}">Open {{ assessment.title }}</a>
+  {% endif %}
+</div>
+{% else %}
+<p class="text-muted">{% if assessment.isPractice %}The practice packet{% else %}The exam document{% endif %} has not been posted yet.</p>
+{% endif %}
+{% if assessment.hasWorkbook %}
+<p>Studying the lecture material as well? <a href="workbook_{{ assessment.number }}.html">Workbook {{ assessment.number }}</a> collects the fill-in lecture slides with these questions placed by topic.</p>
+{% endif %}
+
+{% if assessment.previewLink %}
+<h2>Document preview</h2>
+<p>Read the document below, or <a href="{{ assessment.link }}" target="_blank" rel="noopener">open the original in a new tab</a>.{% if assessment.copyLink %} Use the copy button above to work in your own document.{% endif %}</p>
+<div class="embed-responsive embed-responsive-4by3">
+  <iframe class="embed-responsive-item course-embed" width="100%" height="800" src="{{ assessment.previewLink }}" title="{{ assessment.title }} preview" loading="lazy"></iframe>
+</div>
+{% endif %}
+
+{% if assessment.isPractice %}
+<h2>Submission</h2>
+{% if assessment.submissionLink %}
+<p>Upload your completed practice packet to Canvas. The submission page has the deadline and upload details.</p>
+<p><a class="btn btn-primary" href="{{ assessment.submissionLink }}">Submit {{ assessment.title }} on Canvas</a></p>
+{% else %}
+<p class="text-muted">The Canvas submission link will be added when available.</p>
+{% endif %}
+{% endif %}
+
+<h2 id="solutions">Solutions</h2>
+{% if assessment.solutionsLink %}
+<p>{% if assessment.isPractice %}Try the questions yourself before checking the solutions.{% else %}Use the solutions to review your work after the exam.{% endif %}</p>
+<div class="alert alert-info">
+  <a href="{{ assessment.solutionsLink }}">Open {{ assessment.title }} Solutions</a>
+</div>
+{% else %}
+<p class="text-muted">Solutions have not been posted yet.</p>
+{% endif %}
+
+<p><a href="{{ assessment.relatedSlug }}.html">{% if assessment.isPractice %}Exam{% else %}Practice Packet{% endif %} {{ assessment.number }}</a> &middot; <a href="index.html#schedule">Back to the course schedule</a></p>
+{% endif %}

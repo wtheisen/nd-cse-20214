@@ -1,0 +1,53 @@
+---
+pagination:
+  data: labs
+  size: 1
+  alias: lab
+permalink: "lab_{{ lab.numberStr }}.html"
+layout: base.njk
+tags: lab
+eleventyComputed:
+  title: "Lab {{ lab.numberStr }}{% if lab.title %}: {{ lab.title }}{% endif %}"
+icon: fa-flask
+navigation:
+  - name: "Home"
+    link: "index.html"
+    icon: "fa-gavel"
+---
+
+<h2>Task 1: Notebook</h2>
+
+<p>Open the lab in Google Colab, save a copy to your Drive, and work through it during the Thursday lab session.</p>
+
+{% if lab.link %}
+<div class="alert alert-success">
+<a href="{{ lab.link }}">{% if lab.opensCopy %}OPEN A COPY IN GOOGLE COLAB{% else %}OPEN NOTEBOOK{% endif %}</a>
+</div>
+{% else %}
+<div class="alert alert-warning">
+<p>Notebook link not yet available. Please check back later.</p>
+</div>
+{% endif %}
+
+{% if lab.previewBase %}
+<p>For your convenience the notebook is displayed below as HTML, but you will likely
+find it easier to copy the notebook from the Google Colab link above.</p>
+
+<div class="embed-responsive embed-responsive-4by3">
+<iframe
+    class="embed-responsive-item course-embed theme-notebook-frame"
+    width="100%"
+    height="800"
+    src="{{ lab.previewBase }}-light.html"
+    data-src-light="{{ lab.previewBase }}-light.html"
+    data-src-dark="{{ lab.previewBase }}-dark.html"></iframe>
+</div>
+{% elif lab.link %}
+<div class="alert alert-warning">
+<p>Rendered notebook preview not yet available. Use the Google Colab link above.</p>
+</div>
+{% endif %}
+
+<h2>Task 2: Assignment Submission Instructions</h2>
+
+<p>Follow the notebook's final export instructions, then upload the generated HTML file to Canvas.</p>
