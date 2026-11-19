@@ -27,6 +27,6 @@ Run `npm ci` and `npm run build`. Network access is needed to load the published
 
 Changes pushed to `main` build and deploy through `.github/workflows/build.yaml`. Verify the deployment succeeds and inspect the live result.
 
-**Sheet edits publish themselves.** Every 10 minutes the workflow fetches the published sheets and fingerprints them; if they differ from what was last deployed, it rebuilds and deploys, otherwise it stops after a few seconds. Expect a sheet edit on the site within about 10-15 minutes. Nothing needs installing and no token is involved. (`apps-script/` holds the token-based Apps Script publisher the other course sites use; it isn't installed here and isn't needed.)
+**Sheet edits publish themselves.** Every 10 minutes the workflow fetches the published sheets and fingerprints them; if they differ from what was last deployed, it rebuilds and deploys, otherwise it stops after a few seconds. Expect a sheet edit on the site within about 10-15 minutes. Nothing needs installing and no token is involved.
 
 Sheet downloads go through `lib/fetchCsv.js` (four attempts with timeouts). If a sheet still can't be loaded, or the schedule or Assignments tab comes back empty, the build fails and the live site stays as it was, rather than deploying a site with no schedule. Before deploying, `scripts/verify_build.sh` checks that the core pages and office hours rendered, that every page the home page links to was built, and that each released homework has its notebook link and a reachable preview. It needs no edits per release.
