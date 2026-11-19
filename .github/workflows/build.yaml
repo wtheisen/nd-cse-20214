@@ -15,7 +15,7 @@ on:
     # Sheet publisher: every 10 minutes, fetch the published sheets and rebuild only if they changed.
     # Needs no token or Apps Script; sheet edits reach the site within about 10-15 minutes
     # (Google's published CSVs can lag a few minutes, and GitHub may start scheduled runs late).
-    - cron: '*/10 * * * *'
+    - cron: '7-59/10 * * * *'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
