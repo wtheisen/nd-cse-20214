@@ -12,7 +12,10 @@ on:
         required: false
         default: manual
   schedule:
-    - cron: '29 */6 * * *'  # Low-frequency, staggered fallback rebuild
+    # Sheet publisher: every 10 minutes, fetch the published sheets and rebuild only if they changed.
+    # Needs no token or Apps Script; sheet edits reach the site within about 10-15 minutes
+    # (Google's published CSVs can lag a few minutes, and GitHub may start scheduled runs late).
+    - cron: '*/10 * * * *'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -20,46 +23,87 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment
+# One deployment at a time; queue rather than cancel, so a scheduled check never cancels a deploy in progress
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      sheets_hash: ${{ steps.sheets.outputs.hash }}
+      deploy: ${{ steps.mark.outputs.deploy }}
     steps:
       - uses: actions/checkout@v7
 
+      - name: Fingerprint the published sheets
+        id: sheets
+        run: |
+          hash=$(jq -r '.csv_urls[]' config.json | while read -r url; do
+            curl -fsSL --retry 3 --retry-delay 5 "$url" || echo "FETCH-FAILED $url"
+          done | sha256sum | cut -c1-16)
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
+          echo "Sheets fingerprint: $hash"
+
+      # A scheduled run whose sheets match the last deployed fingerprint has nothing to publish.
+      - name: Check whether these sheets were already deployed
+        id: seen
+        if: github.event_name == 'schedule'
+        uses: actions/cache/restore@v4
+        with:
+          path: .sheets-deployed
+          key: sheets-deployed-${{ steps.sheets.outputs.hash }}
+          lookup-only: true
+
       - name: Setup Node.js
+        if: steps.seen.outputs.cache-hit != 'true'
         uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.seen.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Build site with 11ty
+        if: steps.seen.outputs.cache-hit != 'true'
         run: npm run build
 
       - name: Verify build output
+        if: steps.seen.outputs.cache-hit != 'true'
         run: bash scripts/verify_build.sh docs
 
       - name: Upload artifact
-        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        if: steps.seen.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./docs
 
+      - name: Mark for deploy
+        id: mark
+        if: steps.seen.outputs.cache-hit != 'true' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: echo "deploy=true" >> "$GITHUB_OUTPUT"
+
   deploy:
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    needs: build
+    # Runs only when build uploaded a new site (always for pushes; for scheduled checks, only when the sheets changed)
+    if: needs.build.outputs.deploy == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      - name: Remember the deployed sheets
+        run: echo "${{ needs.build.outputs.sheets_hash }}" > .sheets-deployed
+
+      - name: Save deployed fingerprint
+        uses: actions/cache/save@v4
+        with:
+          path: .sheets-deployed
+          key: sheets-deployed-${{ needs.build.outputs.sheets_hash }}
